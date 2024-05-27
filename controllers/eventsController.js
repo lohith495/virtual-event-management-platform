@@ -3,6 +3,7 @@ const verifyToken = require('../middleware/auth');
 const eventsArray = require('../model/eventsArray');
 const usersArray = require('../model/userArray');
 const ATVirtualEvent = require('../model/event');
+const nodemailer = require('nodemailer');
 
 events.get("/", verifyToken,  (req, res) => {
     if(req.email){
@@ -39,7 +40,7 @@ events.post("/", verifyToken,  (req, res) => {
               };
             const event = new ATVirtualEvent(id, req.body.date, time, req.body.description);
             eventsArray.push(event);
-            return res.status(200).json(eventsArray[eventsArray.length-1]);
+            return res.status(201).json(eventsArray[eventsArray.length-1]);
         }
         else{
             return res.status(401).json(emailRegistered+ " is unauthorized to create events");
@@ -105,5 +106,59 @@ events.delete('/:id', verifyToken, (req, res) => {
         return res;
     }
 });
+
+events.post('/:id/register', verifyToken, (req, res) => {
+    if(req.email){
+        console.log(req.email);
+        emailRegistered = req.email;
+        let findUser = usersArray.filter(val => val.email == emailRegistered);
+        if(eventsArray.length !== 0){
+            let filteredEvent = eventsArray.filter(val => val.id == req.params.id);
+            if(filteredEvent.length == 0){
+                return res.status(404).json("Event id not available");
+            }
+            let filteredEventIndex = filteredEvent.map(val => eventsArray.indexOf(val));
+            if(eventsArray[filteredEventIndex].participants.includes(emailRegistered)){
+                return res.status(409).json(emailRegistered+ " already registered to event - "+req.params.id);
+            }
+            eventsArray[filteredEventIndex].participants.push(findUser[0].email);
+            console.log("Participants list for the event id- "+req.params.id+ " is :"+eventsArray[filteredEventIndex].participants);
+            sendEmail();
+            return res.status(201).json(emailRegistered+ " successfully registered to the event - "+req.params.id);
+        }
+        else{
+            return res.status(404).json('No Events to register');
+        }
+    }
+    else{
+        return res;
+    }
+});
+
+async function sendEmail() {
+    let transporter = nodemailer.createTransport({
+        service: 'gmail', 
+        auth: {
+            user: 'lohith.mudu@gmail.com',
+            pass: '' 
+        }
+    });
+
+    let mailOptions = {
+        from: 'lohith.mudu@gmail.com', 
+        to: 'lohith495@gmail.com', 
+        subject: 'Event Registration Successful!!!', 
+        text: 'Event Registration Successful :-)', 
+        html: 'Event Registration Successful :-)' 
+    };
+
+    try {
+        let info = await transporter.sendMail(mailOptions);
+        console.log('Message sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
 
 module.exports = events;    

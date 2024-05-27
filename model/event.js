@@ -4,7 +4,7 @@ class ATVirtualEvent{
         this.date = date;
         this.time = time;
         this.description = description;
-        this.participants = participants;
+        this.participants = [];
     }
 }
 
