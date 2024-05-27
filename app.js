@@ -7,13 +7,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", router);
 
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
     if (err) {
         return console.log('Something bad happened', err);
     }
     console.log(`Server is listening on ${port}`);
+    console.log(server.address());
 });
 
 
 
-module.exports = app;
+module.exports = server;
