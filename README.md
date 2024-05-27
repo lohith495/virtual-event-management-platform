@@ -10,7 +10,7 @@ npm install
 To run the application, please run below node command:
 node app.js
 
-user's password is hashed using bcrypt, api's are protected by using valid jwt token in the "authorization" header
+--> **User's password is hashed using bcrypt, api's are protected by using valid jwt token in the "authorization" header. Post registering to an event, a confirmation email will be sent to the user's email id**
 
 To test the application, below are the api's and respective request body and expected response:
 
