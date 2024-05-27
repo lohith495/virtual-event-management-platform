@@ -10,6 +10,8 @@ npm install
 To run the application, please run below node command:
 node app.js
 
+user's password is hashed using bcrypt, api's are protected by using valid jwt token in the "authorization" header
+
 To test the application, below are the api's and respective request body and expected response:
 
 1. POST /register
